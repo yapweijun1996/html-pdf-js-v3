@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Purchase Order — html-to-pdf.js Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; }
+        .container { max-width: 860px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 32px #0001; padding: 32px 36px; }
+        #po-content {
+            width: 794px;
+            min-height: 1123px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 24px 24px 48px 24px;
+            border-radius: 8px;
+        }
+        .company-logo { height: 55px; }
+        .btn { margin-top: 30px; padding: 12px 28px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        th, td { border: 1px solid #333; padding: 7px 8px; }
+        th { background: #eaf2ff; }
+        @media print {
+            #po-content { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>PDF Demo - Purchase Order (html-to-pdf.js, A4 Full Width, No Blank Page)</h2>
+    <div id="po-content">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <img class="company-logo" src="https://picsum.photos/seed/openai/120/55" alt="Company Logo" />
+            <div style="text-align:right;">
+                <div><b>Purchase Order:</b> PO-2024-0007</div>
+                <div><b>Date:</b> 2025-07-16</div>
+            </div>
+        </div>
+        <div style="font-size:2.1rem;font-weight:bold;margin-bottom:10px;color:#21314a;">Purchase Order</div>
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Unit Price (MYR)</th>
+                <th>Amount (MYR)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>HP ProBook 440 G8 Laptop</td>
+                <td>3</td>
+                <td>3,200.00</td>
+                <td>9,600.00</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Wireless Mouse (Logitech M331)</td>
+                <td>3</td>
+                <td>65.00</td>
+                <td>195.00</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>24&quot; LED Monitor (Dell P2419H)</td>
+                <td>2</td>
+                <td>720.00</td>
+                <td>1,440.00</td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr style="font-weight:bold;background:#f7fafc;">
+                <th colspan="4" style="text-align:right;">SUBTOTAL</th>
+                <td>11,235.00</td>
+            </tr>
+            <tr>
+                <th colspan="4" style="text-align:right;">Discount</th>
+                <td>-235.00</td>
+            </tr>
+            <tr style="font-weight:bold;background:#f7fafc;">
+                <th colspan="4" style="text-align:right;">TOTAL</th>
+                <td>11,000.00</td>
+            </tr>
+            </tfoot>
+        </table>
+        <div style="margin:30px 0 10px 0;text-align:center;">
+            <img id="poChartImg" src="" alt="Chart will appear here"
+                 style="display:block;margin:0 auto 8px auto;border:1px solid #e3e9f0;border-radius:5px;width:350px;height:110px;" />
+            <div style="text-align:center; font-size: .98rem; color: #888;">Items Breakdown (Bar Chart)</div>
+        </div>
+        <div style="margin-top:20px;font-size:1rem;">
+            <b>Remarks:</b> Please deliver all items within 14 days. Payment terms: 30 days EOM.
+        </div>
+    </div>
+    <button class="btn" id="downloadBtn">Download PDF</button>
+    <div id="status" style="margin-top:16px;min-height:18px;color:#388;"></div>
+</div>
+
+<!-- Chart: generate canvas and set image src -->
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+    // Draw chart as canvas and set as img src
+    const canvas = document.createElement('canvas');
+    canvas.width = 350;
+    canvas.height = 110;
+    const ctx = canvas.getContext('2d');
+    [
+        { x: 25, y: 90, w: 60, h: -55, color: '#2071e7', label: 'Laptops' },
+        { x: 110, y: 90, w: 60, h: -18, color: '#35b376', label: 'Mouse' },
+        { x: 195, y: 90, w: 60, h: -28, color: '#eac14f', label: 'Monitors' }
+    ].forEach(bar => {
+        ctx.fillStyle = bar.color;
+        ctx.fillRect(bar.x, bar.y, bar.w, bar.h);
+        ctx.font = '13px Arial';
+        ctx.fillStyle = '#444';
+        ctx.textAlign = "center";
+        ctx.fillText(bar.label, bar.x + bar.w/2, 104);
+    });
+    document.getElementById('poChartImg').src = canvas.toDataURL('image/png');
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="html-to-pdf.js"></script>
+
+<script>
+document.getElementById('downloadBtn').onclick = async function() {
+    document.getElementById('status').innerText = 'Preparing...';
+    await window.htmlToPdf('#po-content', 'purchase-order.pdf');
+    document.getElementById('status').innerText = 'Done!';
+};
+</script>
+</body>
+</html>
